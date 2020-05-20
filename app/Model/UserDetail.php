@@ -18,5 +18,6 @@ class UserDetail extends Model
         'lastName', 
         'address', 
         'gender',
+        'qrCode',
     ];
 }

@@ -14,3 +14,10 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('qrcode', function () {
+
+    return QrCode::format('png')
+            ->size(500)
+            ->generate('ItSolutionStuff.com', public_path('/qrcode.png'));
+});

@@ -25,7 +25,7 @@ class LoginController extends Controller
             
             if(!$user) {
                 return response([
-                    'message'   => "The user doesn't exist."
+                    'message'   => "The email address doesn't exist! Please try again."
                 ], 404);
             }
 
@@ -36,7 +36,7 @@ class LoginController extends Controller
 
             if(!$check_user) {
                 return response([
-                    'message'   => 'Email Address or Password is incorrect! Please try again.'
+                    'message'   => 'The email address or the password is incorrect! Please try again.'
                 ], 404);
             } 
 

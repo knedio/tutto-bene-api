@@ -18,7 +18,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'email', 'password',
+        'id', 
+        'email', 
+        'password',
+        'serialNo',
     ];
 
     /**
@@ -39,9 +42,34 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $with = [
+        'detail', 
+        'userRole.role',
+        'reports',
+        'quarantine',
+        'positive',
+    ];
+
     public function detail()
     {
         return $this->hasOne(UserDetail::class, 'user_id');
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(UserReport::class, 'user_id');
+    }
+
+    public function quarantine()
+    {
+        return $this->hasOne(UserQuarantine::class, 'user_id')
+            ->whereNull('deleted_at');
+    }
+
+    public function positive()
+    {
+        return $this->hasOne(UserPositive::class, 'user_id')
+            ->whereNull('deleted_at');
     }
 
     public function userRole()
@@ -51,7 +79,7 @@ class User extends Authenticatable
 
     public static function show($id)
     {
-        return User::with('detail', 'userRole.role')->where('id',$id)->first();
+        return User::where('id', $id)->first();
     }
 
     public static function getPassword($id){

@@ -8,7 +8,10 @@ use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateRequest;
 use App\Model\User;
 use App\Model\UserDetail;
+use App\Model\UserRole;
+use App\Model\UserReport;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Auth;
 
 class UserController extends Controller
@@ -21,9 +24,7 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::with('detail', 'userRole.role')
-                ->where('status', 1)
-                ->get();
+            $users = User::get();
                 
             return response([
                 'message'   => 'Successful! Getting all the users.',
@@ -54,7 +55,7 @@ class UserController extends Controller
             if(!$user) {
                 return response([
                     'message'   => 'Sorry! User not found.',
-                ]);    
+                ], 404);    
             }
 
             return response([
@@ -86,11 +87,32 @@ class UserController extends Controller
                 'password'      => bcrypt($request->password),
                 'remember_token'    => Str::random(10),
             ]);
+                
+            //  Generate QR Code for the user
+            $fileName = 'qrcode-user-'. $user->id.'.png';
+            $path = 'users\\user-' . $user->id;
+            Storage::makeDirectory('public\\' . $path);
+            $userPath = $path . '\\' . $fileName;
+            \QrCode::format('png')
+                ->size(500)
+                ->generate('userId-' . $user->id, Storage::disk('public')->path($userPath));
+            
+            // Generate Serial No. for the user
+            $serialNo = date('Y-').str_pad($user->id, 4, '0', STR_PAD_LEFT);
 
             $detail = UserDetail::create([
                 'user_id'       => $user->id,
-                'firstName'    => $request->firstName,
-                'lastName'     => $request->lastName,
+                'firstName'     => $request->firstName,
+                'middleName'    => $request->middleName,
+                'lastName'      => $request->lastName,
+                'gender'        => $request->gender,
+                'address'       => $request->address,
+                'qrCode'        => $userPath,
+                'phoneNo'       => $request->phoneNo,
+            ]);
+
+            $user->update([
+                'serialNo'  => $serialNo,
             ]);
 
             $user = User::show($user->id);
@@ -102,6 +124,7 @@ class UserController extends Controller
                 'token'     => $token,
                 'message'   => 'Successful! Creating the user.',
             ], 200);
+            
         } catch (Exception $e) {
             $status = 400;
 
@@ -136,6 +159,11 @@ class UserController extends Controller
                 'address',
                 'gender',
             ]));
+
+            $role = UserRole::create([
+                'user_id'   => $user->id,
+                'role_id'   => $row['role_id'],
+            ]);
 
             return response([
                 'user'      => User::get($user->id),

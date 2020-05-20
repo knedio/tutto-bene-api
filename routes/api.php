@@ -55,6 +55,7 @@ Route::group([
 		], function(){
             Route::patch('reset-password/{user}', 'ResetPasswordToDefaultController');
             Route::patch('change-password/{user}', 'ChangePasswordController');
+            Route::get('get-by-serial-no', 'GetBySerialNo');
 		});
 		Route::resource('user', 'UserController');
 	});
@@ -72,5 +73,48 @@ Route::group([
 
         });
 		Route::resource('role', 'RoleController');
+	});
+	
+	// UserReport Module
+	Route::group([
+		'middleware' => [
+			'auth:api',
+		],
+		'namespace' => 'UserReport',
+	], function(){
+		Route::group([
+			'prefix' => 'user-report',
+		], function(){
+            Route::get('get-by-user', 'GetByUserController');
+		});
+		Route::resource('user-report', 'UserReportController');
+	});
+	
+	// User Quarantine Module
+	Route::group([
+		'middleware' => [
+			'auth:api',
+		],
+		'namespace' => 'UserQuarantine',
+	], function(){
+		Route::group([
+			'prefix' => 'user-quarantine',
+		], function(){
+		});
+		Route::resource('user-quarantine', 'UserQuarantineController');
+	});
+	
+	// User Positive Module
+	Route::group([
+		'middleware' => [
+			'auth:api',
+		],
+		'namespace' => 'UserPositive',
+	], function(){
+		Route::group([
+			'prefix' => 'user-positive',
+		], function(){
+		});
+		Route::resource('user-positive', 'UserPositiveController');
 	});
 });

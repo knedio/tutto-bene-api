@@ -23,6 +23,8 @@ class CreateUserDetailsTable extends Migration
             $table->string('middleName')->nullable();
             $table->string('lastName');
             $table->string('address')->nullable();
+            $table->string('qrCode')->nullable();
+            $table->string('phoneNo')->nullable();
             $table->enum('gender', ['male', 'female', 'rather not to say'])->nullable();
             $table->timestamps();
         });
